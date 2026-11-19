@@ -181,6 +181,9 @@ function setLanguage(code) {
 // ------------------------------------------------------------------ e-posta (sahte SMTP)
 
 const MAIL_DIR = process.env.MAIL_DIR || '';
+const BAN_CMD = process.env.BAN_CMD || 'ban';
+const UNBAN_CMD = process.env.UNBAN_CMD || 'pardon';
+const EXPECT_PROVIDER = process.env.EXPECT_PROVIDER || '';
 
 function mailCount() {
   if (!MAIL_DIR || !fs.existsSync(MAIL_DIR)) return 0;
@@ -295,6 +298,10 @@ async function scenario() {
     await waitLog(/SMTP bağlantı testi BAŞARILI/, 30000);
     step('SMTP connection test on startup');
   }
+  if (EXPECT_PROVIDER) {
+    await waitLog(new RegExp('Ban kaynağı aktif: ' + EXPECT_PROVIDER.replace(/[/]/g, '\\/')), 30000);
+    step('Ban source detected: ' + EXPECT_PROVIDER);
+  }
   await sleep(3000);
   if (!BOTS) {
     console.log('::notice title=MC ' + MC + '::mineflayer does not support ' + MC + ' - running console scenario');
@@ -356,7 +363,7 @@ async function scenario() {
   }
 
   // 4) Ban -> alt hesap uyarisi
-  mark = consoleCmd('ban AltBot hile testi');
+  mark = consoleCmd(BAN_CMD + ' AltBot hile testi');
   await sleep(6000);
   mark = lines.length;
   bot = await createBot('TestBot');
@@ -371,10 +378,10 @@ async function scenario() {
   step('/hesaplar shows banned alt with reason, date and staff');
 
   // 5) Unban -> 1 dakika icinde temiz
-  consoleCmd('pardon AltBot');
+  consoleCmd(UNBAN_CMD + ' AltBot');
   await sleep(7000);
   mark = consoleCmd('hesaplar TestBot');
-  await waitLog(/AltBot.*Temiz/, 15000, mark);
+  await waitLog(/AltBot.*(Temiz|Önceden banlandı: hile testi)/, 15000, mark);
   step('Unban reflected in /hesaplar');
 
   // 6) Yonetici komutlari
@@ -410,7 +417,8 @@ function scanErrors() {
     /at com\.jestron\./.test(l) ||
     /com\.jestron\.[\w.$]+(Exception|Error)/.test(l) ||
     (/KayitPlugin/.test(l) && /\b(ERROR|SEVERE)\b/.test(l)) ||
-    /Task .* generated an exception/.test(l) && /KayitPlugin/.test(l));
+    /Task .* generated an exception/.test(l) && /KayitPlugin/.test(l) ||
+    /Ban kaynağı okunamadı/.test(l));
   return bad;
 }
 

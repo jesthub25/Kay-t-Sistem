@@ -11,6 +11,10 @@ UA="KayitPlugin-CI/2.0 (https://github.com/jesthub25/Kay-t-Sistem)"
 rm -rf "$SERVER"
 mkdir -p "$SERVER/plugins"
 cp "$JAR" "$SERVER/plugins/"
+# Ek eklentiler (AdvancedBan, EssentialsX ...) - bosluklu liste
+for extra in ${EXTRA_JARS:-}; do
+  cp "$extra" "$SERVER/plugins/"
+done
 
 URL=""
 URL=$(curl -fsSL -H "User-Agent: $UA" "https://fill.papermc.io/v3/projects/paper/versions/$MC/builds/latest" 2>/dev/null \

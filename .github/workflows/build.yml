@@ -84,9 +84,56 @@ jobs:
           path: server-${{ matrix.mc }}/e2e-console.log
           if-no-files-found: ignore
 
+  e2e-banplugins:
+    name: E2E ${{ matrix.plugin }} (Paper ${{ matrix.mc }})
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { plugin: AdvancedBan, repo: DevLeoko/AdvancedBan, asset: '^AdvancedBan.*[.]jar$', mc: '1.20.4', java: '17', ban: 'ban', unban: 'unban', provider: 'AdvancedBan' }
+          - { plugin: EssentialsX, repo: EssentialsX/Essentials, asset: '^EssentialsX-[0-9].*[.]jar$', mc: '1.21.4', java: '21', ban: 'ban', unban: 'unban', provider: 'Essentials/Vanilla' }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v5
+        with:
+          name: KayitPlugin
+          path: dist
+      - name: Download ${{ matrix.plugin }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p extra
+          URL=$(gh api "repos/${{ matrix.repo }}/releases/latest" --jq '[.assets[] | select(.name | test("${{ matrix.asset }}"))][0].browser_download_url')
+          echo "Downloading $URL"
+          curl -fsSL -o "extra/${{ matrix.plugin }}.jar" "$URL"
+      - name: Install test tools
+        working-directory: scripts
+        run: |
+          npm install --no-audit --no-fund
+          pip install --quiet aiosmtpd
+      - name: Run end-to-end test with ${{ matrix.plugin }}
+        env:
+          EXTRA_JARS: extra/${{ matrix.plugin }}.jar
+          BAN_CMD: ${{ matrix.ban }}
+          UNBAN_CMD: ${{ matrix.unban }}
+          EXPECT_PROVIDER: ${{ matrix.provider }}
+        run: |
+          export EXTRA_JARS="$(pwd)/$EXTRA_JARS"
+          bash scripts/smoke_test.sh "${{ matrix.mc }}" "$(ls dist/KayitPlugin-*.jar)"
+
   release:
     name: GitHub Release
-    needs: [build, e2e]
+    needs: [build, e2e, e2e-banplugins]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:

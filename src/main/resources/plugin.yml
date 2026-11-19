@@ -1,0 +1,43 @@
+name: KayitPlugin
+version: '${project.version}'
+main: com.jestron.kayit.KayitPlugin
+api-version: '1.16'
+author: Jestron
+website: https://github.com/jesthub25/Kay-t-Sistem
+description: AvenorCraft kayit/giris, e-posta dogrulama, IP limiti ve alt hesap + ban takip sistemi
+softdepend: [LiteBans, AdvancedBan, Essentials]
+
+# Komutlar plugin.yml'de DEGIL, secilen dile gore (lang/<dil>.yml -> commands) dinamik olarak kaydedilir.
+
+permissions:
+  kayit.admin:
+    description: Tum yonetici yetkileri
+    default: op
+    children:
+      kayit.alts: true
+      kayit.alert: true
+      kayit.forcelogin: true
+      kayit.resetpassword: true
+      kayit.resetemail: true
+      kayit.manage: true
+  kayit.alts:
+    description: Alt hesap sorgulama komutu
+    default: op
+  kayit.alert:
+    description: Banli alt hesap uyarilarini gorur
+    default: op
+  kayit.forcelogin:
+    description: Oyuncuyu sifresiz giris yaptirir
+    default: op
+  kayit.resetpassword:
+    description: Oyuncunun sifresini sifirlar
+    default: op
+  kayit.resetemail:
+    description: Oyuncunun e-postasini sifirlar
+    default: op
+  kayit.manage:
+    description: Yenileme, bilgi ve test e-postasi komutu
+    default: op
+  kayit.bypass.iplimit:
+    description: IP kayit ve oturum limitlerini yok sayar
+    default: false

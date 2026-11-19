@@ -1,0 +1,9 @@
+target/
+dist/
+server-*/
+scripts/node_modules/
+scripts/package-lock.json
+*.iml
+.idea/
+.vscode/
+*.log

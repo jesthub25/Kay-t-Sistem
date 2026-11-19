@@ -1,0 +1,373 @@
+# ==============================================================================
+#  KayitPlugin - Turkce dil dosyasi
+#  Renkler: &a, &c ... ve HEX: &#RRGGBB   |   {prefix} mesaja on ek koyar
+#  Bir mesaji tamamen kapatmak icin degerini "" yapin.
+#  Komut adlari Minecraft'ta sorunsuz calismasi icin Turkce karakter icermemelidir.
+# ==============================================================================
+
+prefix: "&8[&bKayıt&8] &r"
+
+# ------------------------------------------------------------------------------
+# KOMUTLAR (ad + takma adlar + alt komut kelimeleri)
+# ------------------------------------------------------------------------------
+commands:
+  register:
+    name: kayitol
+    aliases: [register, reg]
+  login:
+    name: giris
+    aliases: [login, l]
+  code:
+    name: kod
+    aliases: []
+    sub-resend: gonder
+  email:
+    name: eposta
+    aliases: []
+    sub-add: bagla
+    sub-remove: kaldir
+    sub-change: degistir
+  changepassword:
+    name: sifredegistir
+    aliases: []
+  forcelogin:
+    name: engelsizgiris
+    aliases: []
+  resetpassword:
+    name: sifresifirla
+    aliases: []
+  resetemail:
+    name: epostasifirla
+    aliases: []
+  alts:
+    name: hesaplar
+    aliases: []
+  admin:
+    name: kayitsistemi
+    aliases: []
+    sub-reload: yenile
+    sub-info: bilgi
+    sub-testmail: testmail
+
+usage:
+  register: "{prefix}&cKullanım: &e/{label} <şifre> [e-posta]"
+  login: "{prefix}&cKullanım: &e/{label} <şifre>"
+  code: "{prefix}&cKullanım: &e/{label} <kod> &7veya &e/{label} {resend}"
+  email:
+    - "{prefix}&bE-posta Komutları:"
+    - "&e/{label} {add} &7<e-posta> &8- &fE-posta bağla"
+    - "&e/{label} {remove} &8- &fE-postanı kaldır"
+    - "&e/{label} {change} &7<mevcut> <yeni> &8- &fE-postanı değiştir"
+  changepassword: "{prefix}&cKullanım: &e/{label} <eski şifre> <yeni şifre>"
+  forcelogin: "{prefix}&cKullanım: &e/{label} <oyuncu>"
+  resetpassword: "{prefix}&cKullanım: &e/{label} <oyuncu>"
+  resetemail: "{prefix}&cKullanım: &e/{label} <oyuncu>"
+  alts: "{prefix}&cKullanım: &e/{label} <oyuncu>"
+  admin:
+    - "{prefix}&bKayıt Sistemi &7v{version}"
+    - "&e/{label} {reload} &8- &fAyarları ve dili yeniden yükle"
+    - "&e/{label} {info} &8- &fSistem durumunu göster"
+    - "&e/{label} {testmail} &7<e-posta> &8- &fTest e-postası gönder"
+
+general:
+  no-permission: "{prefix}&cBu komutu kullanma yetkin yok."
+  players-only: "{prefix}&cBu komut sadece oyuncular içindir."
+  internal-error: "{prefix}&cBir hata oluştu, lütfen yetkiliye bildir."
+  please-wait: "{prefix}&7İşleminiz sürüyor, lütfen bekleyin..."
+  loading: "{prefix}&7Hesap bilgilerin yükleniyor, birkaç saniye sonra tekrar dene."
+  player-not-found: "{prefix}&cOyuncu bulunamadı veya çevrimiçi değil: &e{player}"
+  player-not-registered: "{prefix}&cBu oyuncu kayıtlı değil: &e{player}"
+  must-login: "{prefix}&cÖnce giriş yapmalısın."
+
+# ------------------------------------------------------------------------------
+# GIRIS / KAYIT HATIRLATMALARI
+# ------------------------------------------------------------------------------
+prompt:
+  register: "{prefix}&eKayıt olmak için: &a/{register} <şifre> [e-posta]"
+  login: "{prefix}&eGiriş yapmak için: &a/{login} <şifre>"
+  code: "{prefix}&eE-postana gelen kodu gir: &a/{code} <kod> &7(yeniden gönder: &a/{code} {resend}&7)"
+title:
+  register:
+    title: "&b&lHoş Geldin!"
+    subtitle: "&f/{register} <şifre> &7ile kayıt ol"
+  login:
+    title: "&b&lTekrar Hoş Geldin!"
+    subtitle: "&f/{login} <şifre> &7ile giriş yap"
+  code:
+    title: "&e&lE-posta Doğrulama"
+    subtitle: "&f/{code} <kod> &7yaz"
+
+password:
+  too-short: "{prefix}&cŞifre çok kısa! En az &e{min} &ckarakter olmalı."
+  too-long: "{prefix}&cŞifre çok uzun! En fazla &e{max} &ckarakter olabilir."
+  same-as-name: "{prefix}&cŞifren kullanıcı adınla aynı olamaz."
+  blocked: "{prefix}&cBu şifre çok kolay tahmin edilir, başka bir şifre seç."
+
+register:
+  already: "{prefix}&cZaten kayıtlısın! Giriş için: &e/{login} <şifre>"
+  success: "{prefix}&aKayıt başarılı! Sunucuya hoş geldin &e{player}&a."
+  ip-limit: "{prefix}&cBu IP adresinden en fazla &e{max} &chesap kayıt olabilir."
+  email-limit: "{prefix}&cBu e-posta adresi ile en fazla &e{max} &chesap kayıt olabilir."
+  email-saved-unverified: "{prefix}&7E-posta sistemi kapalı olduğu için e-posta doğrulamasız kaydedildi."
+  code-sent: "{prefix}&aDoğrulama kodu &e{email} &aadresine gönderildi. &e{seconds} saniye &aiçinde &e/{code} <kod> &ayaz."
+
+login:
+  not-registered: "{prefix}&cKayıtlı değilsin. Kayıt için: &e/{register} <şifre> [e-posta]"
+  already: "{prefix}&cZaten giriş yaptın."
+  wrong-password: "{prefix}&cYanlış şifre! &7Kalan deneme hakkı: &e{remaining}"
+  wrong-password-unlimited: "{prefix}&cYanlış şifre! Tekrar dene."
+  success: "{prefix}&aGiriş başarılı! Hoş geldin &e{player}&a."
+  session-restored: "{prefix}&aOturumun hatırlandı, otomatik giriş yapıldı."
+  reload-restored: "{prefix}&7Eklenti yeniden yüklendi, oturumun korundu."
+  ip-limit: "{prefix}&cBu IP adresinden aynı anda en fazla &e{max} &chesap giriş yapabilir."
+  code-sent: "{prefix}&aGiriş kodu e-postana (&e{email}&a) gönderildi. &e/{code} <kod> &ayaz."
+
+code:
+  no-pending: "{prefix}&cBekleyen bir doğrulama işlemin yok."
+  pending: "{prefix}&eBekleyen bir doğrulaman var. &a/{code} <kod> &eyaz veya &a/{code} {resend}"
+  expired: "{prefix}&cKodun süresi doldu, işlem iptal edildi. Komutu baştan kullan."
+  wrong: "{prefix}&cYanlış kod! &7Kalan hak: &e{remaining}"
+  too-many: "{prefix}&cÇok fazla yanlış kod girdin, işlem iptal edildi."
+  resent: "{prefix}&aYeni kod &e{email} &aadresine gönderildi."
+  cooldown: "{prefix}&cYeni kod istemek için &e{seconds} saniye &cbeklemelisin."
+  verified: "{prefix}&aKod doğrulandı!"
+
+email:
+  invalid: "{prefix}&cGeçersiz e-posta adresi."
+  disabled: "{prefix}&cE-posta sistemi şu an kapalı."
+  send-failed: "{prefix}&cE-posta gönderilemedi. Lütfen daha sonra tekrar dene veya yetkiliye bildir."
+  code-sent: "{prefix}&aDoğrulama kodu &e{email} &aadresine gönderildi. &e/{code} <kod> &ayaz."
+  linked: "{prefix}&aE-posta adresin bağlandı: &e{email}"
+  removed: "{prefix}&aE-posta adresin kaldırıldı."
+  changed: "{prefix}&aE-posta adresin değiştirildi: &e{email}"
+  not-linked: "{prefix}&cBağlı bir e-posta adresin yok. &e/{label} {add} <e-posta>"
+  already-linked: "{prefix}&cZaten bağlı bir e-postan var. Değiştirmek için: &e/{label} {change} <mevcut> <yeni>"
+  mismatch: "{prefix}&cMevcut e-posta adresin eşleşmiyor."
+  same: "{prefix}&cYeni e-posta eskisiyle aynı olamaz."
+
+changepassword:
+  success: "{prefix}&aŞifren başarıyla değiştirildi."
+  wrong-old: "{prefix}&cEski şifren yanlış."
+  same: "{prefix}&cYeni şifre eskisiyle aynı olamaz."
+
+security:
+  timeout-kick: "&cGiriş için verilen süre doldu.\n&7Tekrar bağlanıp &e/{login} &7veya &e/{register} &7kullan."
+  attempts-kick: "&cÇok fazla yanlış şifre denemesi!\n&7Lütfen daha sonra tekrar dene."
+  already-online: "&cBu hesap şu anda sunucuda çevrimiçi!"
+  reset-kick: ""
+
+protection:
+  chat: "{prefix}&cSohbet için önce giriş yapmalısın."
+  command: "{prefix}&cBu komutu kullanmak için önce giriş yapmalısın."
+
+admin:
+  forcelogin:
+    done: "{prefix}&a&e{player} &aiçin giriş engeli kaldırıldı."
+    target: "{prefix}&aYetkili tarafından giriş yetkin açıldı."
+    already: "{prefix}&e{player} &czaten giriş yapmış."
+  resetpassword:
+    done: "{prefix}&a&e{player} &aadlı oyuncunun şifresi sıfırlandı."
+    target: "{prefix}&cŞifren yetkili tarafından sıfırlandı. Yeniden kayıt ol: &e/{register} <şifre>"
+  resetemail:
+    done: "{prefix}&a&e{player} &aadlı oyuncunun e-postası sıfırlandı."
+    none: "{prefix}&c&e{player} &cadlı oyuncunun bağlı e-postası yok."
+  reload:
+    done: "{prefix}&aAyarlar ve dil dosyası yeniden yüklendi. &7({ms} ms)"
+    failed: "{prefix}&cYenileme sırasında hata: &e{error}"
+    database-note: "{prefix}&7Not: Veritabanı türü değişikliği için sunucuyu yeniden başlatın."
+  testmail:
+    sending: "{prefix}&7Test e-postası &e{email} &7adresine gönderiliyor..."
+    success: "{prefix}&aTest e-postası başarıyla gönderildi! &7({ms} ms)"
+    failed: "{prefix}&cTest e-postası gönderilemedi: &e{error}"
+  info:
+    - "&8&m------------&r &b&lKayıt Sistemi &7v{version} &8&m------------"
+    - "&7Sunucu: &f{server_version}"
+    - "&7Dil: &f{language} &8| &7Veritabanı: &f{database}"
+    - "&7E-posta: {email_status}"
+    - "&7Çevrimiçi: &f{online} &8| &7Giriş yapmış: &a{logged}"
+    - "&7Aktif banlar (önbellek): &f{bans} &8| &7Son yenileme: &f{refresh}"
+    - "&7Ban kaynakları: {providers}"
+  status:
+    ok: "&aAKTİF"
+    disabled: "&7KAPALI"
+    not-configured: "&eAYARLANMAMIŞ"
+    error: "&cHATA &7({error})"
+    never: "henüz yok"
+
+# ------------------------------------------------------------------------------
+# /hesaplar  (alt hesap sorgulama)
+# Kullanilabilir: {name} {self} {activity} {ban} {staff} {shared}
+# ------------------------------------------------------------------------------
+alts:
+  searching: "{prefix}&7&e{player} &7için alt hesaplar aranıyor..."
+  not-found: "{prefix}&cKayıtlı oyuncu bulunamadı: &e{player}"
+  no-ip: "{prefix}&cBu oyuncu için IP kaydı yok (hiç giriş yapmamış olabilir)."
+  header: "&8&m--------&r &b&l{player} &fİçin Alt Hesaplar &8&m--------"
+  summary: "&7Toplam &f{total} &7hesap &8• &c{banned} &7banlı &8• &f{ips} &7IP tarandı"
+  ips-line: "&7IP adresleri: &f{ips}"
+  columns: "&7İsim  &8|  &7Aktiflik  &8|  &7Ban Durumu (sebep, tarih)  &8|  &7Banı Atan"
+  entry: "&8- &f{name}{self}  &8|  {activity}  &8|  {ban}  &8|  &b{staff}"
+  self-tag: " &8(&7sorgulanan&8)"
+  unregistered-tag: " &8(&7kaydı sıfırlanmış&8)"
+  activity-online: "&aŞu an aktif"
+  activity-unauthed: "&eÇevrimiçi &7(giriş yapmadı)"
+  activity-ago: "&7{time} önce aktifti"
+  activity-never: "&8Hiç giriş yapmadı"
+  ban-active: "&c{reason} sebebiyle ban yedi &7{date}{expiry}"
+  ban-expiry-permanent: " &8(&4kalıcı&8)"
+  ban-expiry-until: " &8(&6bitiş: {until}&8)"
+  ban-past: "&6Önceden banlandı: &7{reason} &8({date})"
+  ban-none: "&aTemiz"
+  staff-none: "&8-"
+  no-reason: "Sebep belirtilmemiş"
+  unknown-date: "?"
+  truncated: "&7... ve daha fazlası (en fazla &f{max} &7hesap gösterilir)"
+  footer: "&8&m--------------------------------------------"
+  hover:
+    - "&b{name}"
+    - "&7UUID: &f{uuid}"
+    - "&7Kayıt: &f{registered}"
+    - "&7Son giriş: &f{last_login}"
+    - "&7Ortak IP sayısı: &f{shared}"
+    - "&7Ban kaynağı: &f{source}"
+    - ""
+    - "&eTıkla: &f/{alts} {name}"
+
+alerts:
+  banned-alt: "{prefix}&c&l⚠ &e{player} &cadlı oyuncu banlı bir alt hesap bulunduruyor! &8(&7{alts}&8)"
+  hover: "&eAlt hesapları görmek için tıkla\n&f/{alts} {player}"
+  console: "Banlı alt hesap tespiti: {player} -> {alts}"
+
+# ------------------------------------------------------------------------------
+# ZAMAN
+# ------------------------------------------------------------------------------
+time:
+  second: "{n} saniye"
+  seconds: "{n} saniye"
+  minute: "{n} dakika"
+  minutes: "{n} dakika"
+  hour: "{n} saat"
+  hours: "{n} saat"
+  day: "{n} gün"
+  days: "{n} gün"
+  month: "{n} ay"
+  months: "{n} ay"
+  year: "{n} yıl"
+  years: "{n} yıl"
+
+# ------------------------------------------------------------------------------
+# KONSOL
+# ------------------------------------------------------------------------------
+console:
+  enabled: "KayitPlugin v{version} etkin. Sunucu: {server} | Dil: {language} | Veritabanı: {database}"
+  mail-ready: "E-posta servisi hazır -> {host}:{port} [{security}]"
+  mail-not-configured: "E-posta ayarlanmamış! config.yml -> email.username / email.password alanlarını doldurun. E-posta doğrulaması devre dışı."
+  mail-test-ok: "SMTP bağlantı testi BAŞARILI ({ms} ms)."
+  mail-test-failed: "SMTP bağlantı testi BAŞARISIZ: {error}"
+  mail-sent: "E-posta gönderildi -> {email}"
+  mail-failed: "E-posta gönderilemedi -> {email} | {error}"
+  command-conflict: "'/{command}' komutu başka bir eklenti tarafından kullanılıyor; '/kayitplugin:{command}' ile de çalışır."
+  provider-ok: "Ban kaynağı aktif: {provider}"
+  provider-error: "Ban kaynağı okunamadı ({provider}): {error}"
+
+mail-errors:
+  auth: "Kimlik doğrulama başarısız. Gmail için 2 Adımlı Doğrulama'yı açıp 'Uygulama Şifresi' kullanın (normal şifre çalışmaz)."
+  connect: "SMTP sunucusuna bağlanılamadı ({host}:{port}). Hosting bu portu engelliyor olabilir; port 465 + security: SSL deneyin."
+  unknown-host: "SMTP sunucu adresi bulunamadı: {host}"
+  timeout: "SMTP sunucusu zaman aşımına uğradı ({host}:{port})."
+  tls: "TLS/SSL hatası. Port 587 için STARTTLS, port 465 için SSL kullanın."
+  not-configured: "E-posta ayarları yapılmamış."
+  other: "{error}"
+
+# ------------------------------------------------------------------------------
+# E-POSTA SABLONLARI  ({player} {code} {seconds} {server} {email} {new_email})
+# ------------------------------------------------------------------------------
+email-templates:
+  register:
+    subject: "{server} - Kayıt Doğrulama Kodu"
+    body: |
+      Merhaba {player},
+
+      {server} sunucusuna kayıt olduğun için teşekkürler!
+
+      Kayıt doğrulama kodun: {code}
+
+      Oyunda /{code_command} {code} yazarak kaydını tamamla.
+      Kod {seconds} saniye boyunca geçerlidir.
+
+      Bu isteği sen yapmadıysan bu e-postayı yok sayabilirsin.
+  login:
+    subject: "{server} - Giriş Doğrulama Kodu"
+    body: |
+      Merhaba {player},
+
+      Hesabına giriş yapılıyor.
+
+      Giriş doğrulama kodun: {code}
+
+      Oyunda /{code_command} {code} yazarak girişi tamamla.
+      Kod {seconds} saniye boyunca geçerlidir.
+
+      Bu girişi sen yapmadıysan şifreni hemen değiştir.
+  email-add:
+    subject: "{server} - E-posta Bağlama Kodu"
+    body: |
+      Merhaba {player},
+
+      Bu e-posta adresini hesabına bağlamak için doğrulama kodun: {code}
+
+      Oyunda /{code_command} {code} yaz. Kod {seconds} saniye geçerlidir.
+  email-remove:
+    subject: "{server} - E-posta Kaldırma Kodu"
+    body: |
+      Merhaba {player},
+
+      E-posta adresini hesabından kaldırmak için doğrulama kodun: {code}
+
+      Oyunda /{code_command} {code} yaz. Kod {seconds} saniye geçerlidir.
+  email-change:
+    subject: "{server} - E-posta Değiştirme Kodu"
+    body: |
+      Merhaba {player},
+
+      Hesabının e-posta adresi {new_email} olarak değiştirilmek isteniyor.
+
+      Doğrulama kodun: {code}
+
+      Oyunda /{code_command} {code} yaz. Kod {seconds} saniye geçerlidir.
+  email-changed-notify:
+    subject: "{server} - E-posta Adresin Değiştirildi"
+    body: |
+      Merhaba {player},
+
+      Hesabının e-posta adresi değiştirildi.
+      Yeni e-posta adresi: {new_email}
+
+      Bu işlemi sen yapmadıysan hemen bir yetkiliyle iletişime geç.
+  password-changed:
+    subject: "{server} - Şifren Değiştirildi"
+    body: |
+      Merhaba {player},
+
+      Hesabının şifresi az önce değiştirildi.
+
+      Bu işlemi sen yapmadıysan hemen bir yetkiliyle iletişime geç.
+  admin-reset-password:
+    subject: "{server} - Şifren Sıfırlandı"
+    body: |
+      Merhaba {player},
+
+      Hesabının şifresi bir yetkili tarafından sıfırlandı.
+      Sunucuya bağlandığında yeniden kayıt olman gerekecek.
+  admin-reset-email:
+    subject: "{server} - E-posta Adresin Kaldırıldı"
+    body: |
+      Merhaba {player},
+
+      Hesabına bağlı e-posta adresi bir yetkili tarafından kaldırıldı.
+  test:
+    subject: "{server} - Test E-postası"
+    body: |
+      Merhaba,
+
+      Bu bir test e-postasıdır. Bu mesajı görüyorsan {server} e-posta sistemi doğru çalışıyor demektir.

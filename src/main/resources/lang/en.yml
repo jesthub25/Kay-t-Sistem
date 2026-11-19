@@ -1,0 +1,357 @@
+# ==============================================================================
+#  KayitPlugin - English language file
+#  Colors: &a, &c ... and HEX: &#RRGGBB   |   {prefix} inserts the prefix
+#  Set a message to "" to disable it.
+#  Command names must be plain ASCII so they work on every Minecraft version.
+# ==============================================================================
+
+prefix: "&8[&bAuth&8] &r"
+
+# ------------------------------------------------------------------------------
+# COMMANDS (name + aliases + sub-command words)
+# ------------------------------------------------------------------------------
+commands:
+  register:
+    name: register
+    aliases: [reg]
+  login:
+    name: login
+    aliases: [l]
+  code:
+    name: code
+    aliases: []
+    sub-resend: resend
+  email:
+    name: email
+    aliases: []
+    sub-add: add
+    sub-remove: remove
+    sub-change: change
+  changepassword:
+    name: changepassword
+    aliases: [changepass]
+  forcelogin:
+    name: forcelogin
+    aliases: []
+  resetpassword:
+    name: resetpassword
+    aliases: []
+  resetemail:
+    name: resetemail
+    aliases: []
+  alts:
+    name: alts
+    aliases: []
+  admin:
+    name: authsystem
+    aliases: []
+    sub-reload: reload
+    sub-info: info
+    sub-testmail: testmail
+
+usage:
+  register: "{prefix}&cUsage: &e/{label} <password> [email]"
+  login: "{prefix}&cUsage: &e/{label} <password>"
+  code: "{prefix}&cUsage: &e/{label} <code> &7or &e/{label} {resend}"
+  email:
+    - "{prefix}&bEmail Commands:"
+    - "&e/{label} {add} &7<email> &8- &fLink an email"
+    - "&e/{label} {remove} &8- &fRemove your email"
+    - "&e/{label} {change} &7<current> <new> &8- &fChange your email"
+  changepassword: "{prefix}&cUsage: &e/{label} <old password> <new password>"
+  forcelogin: "{prefix}&cUsage: &e/{label} <player>"
+  resetpassword: "{prefix}&cUsage: &e/{label} <player>"
+  resetemail: "{prefix}&cUsage: &e/{label} <player>"
+  alts: "{prefix}&cUsage: &e/{label} <player>"
+  admin:
+    - "{prefix}&bAuth System &7v{version}"
+    - "&e/{label} {reload} &8- &fReload config and language"
+    - "&e/{label} {info} &8- &fShow system status"
+    - "&e/{label} {testmail} &7<email> &8- &fSend a test email"
+
+general:
+  no-permission: "{prefix}&cYou don't have permission to use this command."
+  players-only: "{prefix}&cThis command can only be used by players."
+  internal-error: "{prefix}&cAn error occurred, please report it to staff."
+  please-wait: "{prefix}&7Your request is being processed, please wait..."
+  loading: "{prefix}&7Your account is loading, try again in a few seconds."
+  player-not-found: "{prefix}&cPlayer not found or not online: &e{player}"
+  player-not-registered: "{prefix}&cThis player is not registered: &e{player}"
+  must-login: "{prefix}&cYou must log in first."
+
+prompt:
+  register: "{prefix}&eTo register: &a/{register} <password> [email]"
+  login: "{prefix}&eTo log in: &a/{login} <password>"
+  code: "{prefix}&eEnter the code sent to your email: &a/{code} <code> &7(resend: &a/{code} {resend}&7)"
+title:
+  register:
+    title: "&b&lWelcome!"
+    subtitle: "&7Register with &f/{register} <password>"
+  login:
+    title: "&b&lWelcome back!"
+    subtitle: "&7Log in with &f/{login} <password>"
+  code:
+    title: "&e&lEmail Verification"
+    subtitle: "&7Type &f/{code} <code>"
+
+password:
+  too-short: "{prefix}&cPassword is too short! Minimum &e{min} &ccharacters."
+  too-long: "{prefix}&cPassword is too long! Maximum &e{max} &ccharacters."
+  same-as-name: "{prefix}&cYour password can't be the same as your username."
+  blocked: "{prefix}&cThis password is too easy to guess, choose another one."
+
+register:
+  already: "{prefix}&cYou are already registered! Log in with: &e/{login} <password>"
+  success: "{prefix}&aRegistration successful! Welcome &e{player}&a."
+  ip-limit: "{prefix}&cA maximum of &e{max} &caccounts can be registered from this IP address."
+  email-limit: "{prefix}&cA maximum of &e{max} &caccounts can use this email address."
+  email-saved-unverified: "{prefix}&7The email system is disabled, your email was saved without verification."
+  code-sent: "{prefix}&aA verification code was sent to &e{email}&a. Type &e/{code} <code> &awithin &e{seconds} seconds&a."
+
+login:
+  not-registered: "{prefix}&cYou are not registered. Register with: &e/{register} <password> [email]"
+  already: "{prefix}&cYou are already logged in."
+  wrong-password: "{prefix}&cWrong password! &7Attempts left: &e{remaining}"
+  wrong-password-unlimited: "{prefix}&cWrong password! Try again."
+  success: "{prefix}&aLogin successful! Welcome &e{player}&a."
+  session-restored: "{prefix}&aYour session was remembered, you were logged in automatically."
+  reload-restored: "{prefix}&7The plugin was reloaded, your session was kept."
+  ip-limit: "{prefix}&cA maximum of &e{max} &caccounts can be logged in from this IP address at the same time."
+  code-sent: "{prefix}&aA login code was sent to your email (&e{email}&a). Type &e/{code} <code>&a."
+
+code:
+  no-pending: "{prefix}&cYou have no pending verification."
+  pending: "{prefix}&eYou have a pending verification. Type &a/{code} <code> &eor &a/{code} {resend}"
+  expired: "{prefix}&cYour code expired and the action was cancelled. Run the command again."
+  wrong: "{prefix}&cWrong code! &7Attempts left: &e{remaining}"
+  too-many: "{prefix}&cToo many wrong codes, the action was cancelled."
+  resent: "{prefix}&aA new code was sent to &e{email}&a."
+  cooldown: "{prefix}&cYou must wait &e{seconds} seconds &cbefore requesting a new code."
+  verified: "{prefix}&aCode verified!"
+
+email:
+  invalid: "{prefix}&cInvalid email address."
+  disabled: "{prefix}&cThe email system is currently disabled."
+  send-failed: "{prefix}&cThe email could not be sent. Please try again later or contact staff."
+  code-sent: "{prefix}&aA verification code was sent to &e{email}&a. Type &e/{code} <code>&a."
+  linked: "{prefix}&aYour email address was linked: &e{email}"
+  removed: "{prefix}&aYour email address was removed."
+  changed: "{prefix}&aYour email address was changed: &e{email}"
+  not-linked: "{prefix}&cYou have no linked email. &e/{label} {add} <email>"
+  already-linked: "{prefix}&cYou already have a linked email. To change it: &e/{label} {change} <current> <new>"
+  mismatch: "{prefix}&cYour current email address does not match."
+  same: "{prefix}&cThe new email can't be the same as the old one."
+
+changepassword:
+  success: "{prefix}&aYour password was changed successfully."
+  wrong-old: "{prefix}&cYour old password is wrong."
+  same: "{prefix}&cThe new password can't be the same as the old one."
+
+security:
+  timeout-kick: "&cYou took too long to log in.\n&7Reconnect and use &e/{login} &7or &e/{register}&7."
+  attempts-kick: "&cToo many wrong password attempts!\n&7Please try again later."
+  already-online: "&cThis account is already online on the server!"
+  reset-kick: ""
+
+protection:
+  chat: "{prefix}&cYou must log in before chatting."
+  command: "{prefix}&cYou must log in before using this command."
+
+admin:
+  forcelogin:
+    done: "{prefix}&aLogin restriction removed for &e{player}&a."
+    target: "{prefix}&aA staff member logged you in."
+    already: "{prefix}&e{player} &cis already logged in."
+  resetpassword:
+    done: "{prefix}&aPassword of &e{player} &awas reset."
+    target: "{prefix}&cYour password was reset by staff. Register again: &e/{register} <password>"
+  resetemail:
+    done: "{prefix}&aEmail of &e{player} &awas reset."
+    none: "{prefix}&e{player} &chas no linked email."
+  reload:
+    done: "{prefix}&aConfiguration and language reloaded. &7({ms} ms)"
+    failed: "{prefix}&cError while reloading: &e{error}"
+    database-note: "{prefix}&7Note: changing the database type requires a server restart."
+  testmail:
+    sending: "{prefix}&7Sending a test email to &e{email}&7..."
+    success: "{prefix}&aTest email sent successfully! &7({ms} ms)"
+    failed: "{prefix}&cTest email failed: &e{error}"
+  info:
+    - "&8&m------------&r &b&lAuth System &7v{version} &8&m------------"
+    - "&7Server: &f{server_version}"
+    - "&7Language: &f{language} &8| &7Database: &f{database}"
+    - "&7Email: {email_status}"
+    - "&7Online: &f{online} &8| &7Logged in: &a{logged}"
+    - "&7Active bans (cache): &f{bans} &8| &7Last refresh: &f{refresh}"
+    - "&7Ban sources: {providers}"
+  status:
+    ok: "&aACTIVE"
+    disabled: "&7DISABLED"
+    not-configured: "&eNOT CONFIGURED"
+    error: "&cERROR &7({error})"
+    never: "not yet"
+
+alts:
+  searching: "{prefix}&7Searching alt accounts of &e{player}&7..."
+  not-found: "{prefix}&cNo registered player found: &e{player}"
+  no-ip: "{prefix}&cNo IP record for this player (they may have never logged in)."
+  header: "&8&m--------&r &fAlt Accounts of &b&l{player} &8&m--------"
+  summary: "&7Total &f{total} &7accounts &8• &c{banned} &7banned &8• &f{ips} &7IPs scanned"
+  ips-line: "&7IP addresses: &f{ips}"
+  columns: "&7Name  &8|  &7Activity  &8|  &7Ban Status (reason, date)  &8|  &7Banned By"
+  entry: "&8- &f{name}{self}  &8|  {activity}  &8|  {ban}  &8|  &b{staff}"
+  self-tag: " &8(&7queried&8)"
+  unregistered-tag: " &8(&7registration reset&8)"
+  activity-online: "&aActive now"
+  activity-unauthed: "&eOnline &7(not logged in)"
+  activity-ago: "&7Active {time} ago"
+  activity-never: "&8Never logged in"
+  ban-active: "&cBanned for {reason} &7{date}{expiry}"
+  ban-expiry-permanent: " &8(&4permanent&8)"
+  ban-expiry-until: " &8(&6until: {until}&8)"
+  ban-past: "&6Previously banned: &7{reason} &8({date})"
+  ban-none: "&aClean"
+  staff-none: "&8-"
+  no-reason: "No reason given"
+  unknown-date: "?"
+  truncated: "&7... and more (showing at most &f{max} &7accounts)"
+  footer: "&8&m--------------------------------------------"
+  hover:
+    - "&b{name}"
+    - "&7UUID: &f{uuid}"
+    - "&7Registered: &f{registered}"
+    - "&7Last login: &f{last_login}"
+    - "&7Shared IPs: &f{shared}"
+    - "&7Ban source: &f{source}"
+    - ""
+    - "&eClick: &f/{alts} {name}"
+
+alerts:
+  banned-alt: "{prefix}&c&l⚠ &e{player} &chas a banned alt account! &8(&7{alts}&8)"
+  hover: "&eClick to view alt accounts\n&f/{alts} {player}"
+  console: "Banned alt detected: {player} -> {alts}"
+
+time:
+  second: "{n} second"
+  seconds: "{n} seconds"
+  minute: "{n} minute"
+  minutes: "{n} minutes"
+  hour: "{n} hour"
+  hours: "{n} hours"
+  day: "{n} day"
+  days: "{n} days"
+  month: "{n} month"
+  months: "{n} months"
+  year: "{n} year"
+  years: "{n} years"
+
+console:
+  enabled: "KayitPlugin v{version} enabled. Server: {server} | Language: {language} | Database: {database}"
+  mail-ready: "Email service ready -> {host}:{port} [{security}]"
+  mail-not-configured: "Email is not configured! Fill in config.yml -> email.username / email.password. Email verification is disabled."
+  mail-test-ok: "SMTP connection test SUCCEEDED ({ms} ms)."
+  mail-test-failed: "SMTP connection test FAILED: {error}"
+  mail-sent: "Email sent -> {email}"
+  mail-failed: "Email could not be sent -> {email} | {error}"
+  command-conflict: "'/{command}' is already used by another plugin; it also works as '/kayitplugin:{command}'."
+  provider-ok: "Ban source active: {provider}"
+  provider-error: "Could not read ban source ({provider}): {error}"
+
+mail-errors:
+  auth: "Authentication failed. For Gmail enable 2-Step Verification and use an 'App Password' (your normal password will not work)."
+  connect: "Could not connect to the SMTP server ({host}:{port}). Your host may block this port; try port 465 + security: SSL."
+  unknown-host: "SMTP host not found: {host}"
+  timeout: "SMTP server timed out ({host}:{port})."
+  tls: "TLS/SSL error. Use STARTTLS for port 587 and SSL for port 465."
+  not-configured: "Email settings are not configured."
+  other: "{error}"
+
+email-templates:
+  register:
+    subject: "{server} - Registration Code"
+    body: |
+      Hello {player},
+
+      Thanks for registering on {server}!
+
+      Your registration code: {code}
+
+      Type /{code_command} {code} in game to complete your registration.
+      The code is valid for {seconds} seconds.
+
+      If you didn't request this, you can ignore this email.
+  login:
+    subject: "{server} - Login Code"
+    body: |
+      Hello {player},
+
+      Someone is logging in to your account.
+
+      Your login code: {code}
+
+      Type /{code_command} {code} in game to complete the login.
+      The code is valid for {seconds} seconds.
+
+      If this wasn't you, change your password immediately.
+  email-add:
+    subject: "{server} - Email Link Code"
+    body: |
+      Hello {player},
+
+      Your code to link this email to your account: {code}
+
+      Type /{code_command} {code} in game. The code is valid for {seconds} seconds.
+  email-remove:
+    subject: "{server} - Email Removal Code"
+    body: |
+      Hello {player},
+
+      Your code to remove the email from your account: {code}
+
+      Type /{code_command} {code} in game. The code is valid for {seconds} seconds.
+  email-change:
+    subject: "{server} - Email Change Code"
+    body: |
+      Hello {player},
+
+      A request was made to change your account email to {new_email}.
+
+      Your code: {code}
+
+      Type /{code_command} {code} in game. The code is valid for {seconds} seconds.
+  email-changed-notify:
+    subject: "{server} - Your Email Was Changed"
+    body: |
+      Hello {player},
+
+      The email address of your account was changed.
+      New email address: {new_email}
+
+      If this wasn't you, contact a staff member immediately.
+  password-changed:
+    subject: "{server} - Your Password Was Changed"
+    body: |
+      Hello {player},
+
+      Your account password was just changed.
+
+      If this wasn't you, contact a staff member immediately.
+  admin-reset-password:
+    subject: "{server} - Your Password Was Reset"
+    body: |
+      Hello {player},
+
+      Your account password was reset by a staff member.
+      You will need to register again when you join the server.
+  admin-reset-email:
+    subject: "{server} - Your Email Was Removed"
+    body: |
+      Hello {player},
+
+      The email address linked to your account was removed by a staff member.
+  test:
+    subject: "{server} - Test Email"
+    body: |
+      Hello,
+
+      This is a test email. If you can read this, the {server} email system works correctly.

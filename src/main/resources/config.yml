@@ -1,0 +1,207 @@
+# ==============================================================================
+#  KayitPlugin v2 - AvenorCraft Kayit / Giris Sistemi  (by Jestron)
+#  Destek: Spigot / Paper / Purpur / Leaf  1.16.x - 1.21.x  (Java 8 - 21)
+#  https://github.com/jesthub25/Kay-t-Sistem
+# ==============================================================================
+#  Degisiklikten sonra: /kayitsistemi yenile   (EN: /authsystem reload)
+#  Not: database.type degisikligi sunucu yeniden baslatma gerektirir.
+# ==============================================================================
+
+config-version: 3
+
+# Dil: tr / en  ->  plugins/KayitPlugin/lang/<dil>.yml
+# Komut adlari, mesajlar ve e-posta sablonlari secilen dilden okunur.
+language: tr
+
+# Sunucu adi (e-postalarda ve webhook'ta {server} olarak kullanilir)
+server-name: "AvenorCraft"
+
+# Tarih gosterimi (/hesaplar, e-postalar). Ornek: 12/07/2026 18.23
+date-format: "dd/MM/yyyy HH.mm"
+# Saat dilimi. Bos birakilirsa sunucunun saat dilimi kullanilir.
+timezone: "Europe/Istanbul"
+
+# ------------------------------------------------------------------------------
+# VERITABANI
+# ------------------------------------------------------------------------------
+database:
+  # sqlite / mysql / mariadb
+  type: sqlite
+  sqlite-file: "players.db"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "kayitplugin"
+    username: "root"
+    password: ""
+    use-ssl: false
+
+# ------------------------------------------------------------------------------
+# SIFRE KURALLARI
+# ------------------------------------------------------------------------------
+password:
+  min-length: 5
+  max-length: 16
+  # BCrypt maliyeti (4-14). 10 = guvenli ve hizli. Hashleme ana thread'i asla dondurmaz.
+  bcrypt-cost: 10
+  # Sifre oyuncu adiyla ayni olamaz
+  disallow-username: true
+  # Yasakli (cok kolay) sifreler - buyuk/kucuk harf duyarsiz
+  blocked:
+    - "123456"
+    - "12345"
+    - "1234567"
+    - "12345678"
+    - "111111"
+    - "000000"
+    - "password"
+    - "sifre"
+    - "qwerty"
+    - "abc123"
+
+# ------------------------------------------------------------------------------
+# E-POSTA (SMTP)
+#  Gmail: Google Hesabi > Guvenlik > 2 Adimli Dogrulama'yi ac >
+#         "Uygulama sifreleri" > olusan 16 haneli sifreyi asagiya yaz.
+#  Port 587 -> security: STARTTLS   |   Port 465 -> security: SSL
+#  Hosting 587'yi engelliyorsa 465 + SSL deneyin.
+# ------------------------------------------------------------------------------
+email:
+  enabled: true
+  smtp-host: "smtp.gmail.com"
+  smtp-port: 587
+  # STARTTLS / SSL / NONE
+  security: STARTTLS
+  username: "sunucu@gmail.com"
+  password: "app-password-here"
+  # Bos ise username kullanilir
+  from-address: ""
+  from-name: "AvenorCraft"
+  # SMTP EHLO adi. Konteyner (Pterodactyl vb.) sunucularda takilmayi onler.
+  helo-name: "localhost"
+  timeout-seconds: 20
+  # html / text
+  format: html
+  code-length: 6
+  code-expiry-seconds: 120
+  resend-cooldown-seconds: 30
+  # Yanlis kod hakki; asilinca islem iptal olur
+  max-code-attempts: 3
+  # E-postasi dogrulanmis oyuncular her giriste e-posta kodu da girsin mi?
+  require-code-on-login: true
+  # Ayni e-posta ile en fazla kac hesap (0 = sinirsiz)
+  max-accounts-per-email: 3
+  # Sunucu acilisinda SMTP baglantisini test et ve sonucu konsola yaz
+  test-on-startup: true
+
+# ------------------------------------------------------------------------------
+# IP LIMITLERI   (kayit.bypass.iplimit yetkisi limitleri yok sayar; 0 = sinirsiz)
+# ------------------------------------------------------------------------------
+ip-limits:
+  # Ayni IP adresinden en fazla kac hesap kayit olabilir
+  max-registrations-per-ip: 3
+  # Ayni IP adresinden ayni anda en fazla kac hesap giris yapmis olabilir
+  max-sessions-per-ip: 2
+
+# ------------------------------------------------------------------------------
+# GUVENLIK
+# ------------------------------------------------------------------------------
+security:
+  # Bu surede giris/kayit yapmayan oyuncu atilir (saniye, 0 = kapali)
+  login-timeout-seconds: 90
+  # Bu kadar yanlis sifreden sonra oyuncu atilir (0 = kapali)
+  max-login-attempts: 5
+  # Hesap oyundayken ayni isimle baglanip onu oyundan atmayi engeller
+  prevent-online-kick: true
+  # Kayit/giris hatirlatma araligi (saniye)
+  reminder-interval-seconds: 10
+  # Hatirlatmada ekrana baslik (title) goster
+  titles: true
+
+# ------------------------------------------------------------------------------
+# OTURUM (ayni IP'den kisa surede tekrar baglanan oyuncu sifresiz girer)
+# ------------------------------------------------------------------------------
+session:
+  enabled: false
+  timeout-minutes: 10
+
+# ------------------------------------------------------------------------------
+# GIRIS YAPILMADAN ONCEKI KORUMA
+# ------------------------------------------------------------------------------
+protection:
+  # Hareket engeli (dusmeye izin verilir; havada kalip "flying" kick'i yememek icin)
+  freeze: true
+  # Giris yapmamis oyuncu hasar almaz, mob'lar hedef almaz, aclik dusmez
+  invulnerable: true
+  # Giris yapana kadar korluk efekti
+  blindness: false
+  # Giris yapmadan kullanilabilecek EK komutlar (kayit/giris/kod komutlari otomatik eklenir)
+  allowed-commands: []
+
+# ------------------------------------------------------------------------------
+# ALT HESAP SORGULAMA (/hesaplar)
+# ------------------------------------------------------------------------------
+alts:
+  # true: oyuncunun kullandigi TUM IP'ler taranir  |  false: sadece son IP
+  scan-all-ips: true
+  # IP adreslerini sorgu ciktisinda goster
+  show-ips: false
+  # En fazla listelenecek hesap
+  max-results: 30
+
+# ------------------------------------------------------------------------------
+# BAN KAYNAKLARI  (banli alt hesap tespiti)
+# ------------------------------------------------------------------------------
+ban-sources:
+  # Ban listesi kac saniyede bir yeniden okunur (ban/unban 1 dakika icinde yansir)
+  refresh-seconds: 60
+  # Vanilla /ban ve Essentials banlari (Bukkit ban listesi)
+  bukkit-banlist: true
+  litebans:
+    enabled: true
+    # LiteBans bu sunucuda degil de BungeeCord/Velocity'de ise MySQL bilgileriyle okunur
+    sql:
+      enabled: false
+      host: "localhost"
+      port: 3306
+      database: "litebans"
+      username: "root"
+      password: ""
+      table-prefix: "litebans_"
+  advancedban:
+    enabled: true
+    sql:
+      enabled: false
+      host: "localhost"
+      port: 3306
+      database: "advancedban"
+      username: "root"
+      password: ""
+  # Okunamayan ban eklentileri (CMI, BanManager vb.) icin ban/unban komutlarini izler.
+  # Ayrica her ban/unban komutundan birkac saniye sonra listeyi aninda yeniler.
+  command-monitor:
+    enabled: true
+    ban-commands: [ban, tempban, ipban, banip, tempipban, tban]
+    unban-commands: [unban, pardon, unbanip, pardonip, pardon-ip]
+
+# ------------------------------------------------------------------------------
+# YETKILI UYARILARI
+# ------------------------------------------------------------------------------
+alerts:
+  # Oyuncu girdiginde / kayit oldugunda banli alt hesabi varsa kayit.alert yetkililerine uyari
+  banned-alt: true
+  # Uyari sesi (bos = ses yok)
+  sound: "block.note_block.pling"
+
+# ------------------------------------------------------------------------------
+# DISCORD WEBHOOK (istege bagli kayit tutma)
+# ------------------------------------------------------------------------------
+webhook:
+  enabled: false
+  url: ""
+  username: "KayitSistemi"
+  events:
+    register: true
+    login: false
+    banned-alt: true
+    admin-actions: true

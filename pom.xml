@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.jestron</groupId>
+    <artifactId>KayitPlugin</artifactId>
+    <version>2.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>KayitPlugin</name>
+    <description>AvenorCraft Kayit / Giris Sistemi - by Jestron</description>
+    <url>https://github.com/jesthub25/Kay-t-Sistem</url>
+
+    <properties>
+        <!-- Java 8 bytecode: 1.16.x (Java 8/11/16) ile 1.21.x (Java 21) arasindaki tum sunucularda calisir -->
+        <java.release>8</java.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spigot.version>1.16.5-R0.1-SNAPSHOT</spigot.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>spigotmc-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <id>spigotmc-public</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/public/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- En dusuk desteklenen API'ye karsi derlenir: 1.16.5. Daha yeni sunucular geriye uyumludur. -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>${spigot.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- BCrypt (saf Java) - shade + relocate -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
+
+        <!-- JavaMail (SMTP) + Activation - shade + relocate -->
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+
+        <!--
+            SQLite ve MySQL suruculeri JAR'a GOMULMEZ.
+            Spigot/Paper/Purpur/Leaf 1.16 - 1.21 sunuculari bu suruculeri zaten icerir.
+            (Gomulu sqlite-jdbc relocate edildiginde native kutuphane bozulur: UnsatisfiedLinkError)
+        -->
+    </dependencies>
+
+    <build>
+        <finalName>KayitPlugin-${project.version}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>plugin.yml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>plugin.yml</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <release>${java.release}</release>
+                    <encoding>UTF-8</encoding>
+                    <compilerArgs>
+                        <arg>-Xlint:-options</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <propertiesEncoding>UTF-8</propertiesEncoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.mindrot.jbcrypt</pattern>
+                                    <shadedPattern>com.jestron.kayit.libs.bcrypt</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax.mail</pattern>
+                                    <shadedPattern>com.jestron.kayit.libs.javamail</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.sun.mail</pattern>
+                                    <shadedPattern>com.jestron.kayit.libs.sunmail</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax.activation</pattern>
+                                    <shadedPattern>com.jestron.kayit.libs.activation</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.sun.activation</pattern>
+                                    <shadedPattern>com.jestron.kayit.libs.sunactivation</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/LICENSE*</exclude>
+                                        <exclude>META-INF/NOTICE*</exclude>
+                                        <exclude>META-INF/maven/**</exclude>
+                                        <exclude>META-INF/versions/**</exclude>
+                                        <exclude>module-info.class</exclude>
+                                        <!--
+                                            Relocate edilmemis sinif adlari iceren JavaMail kaynak dosyalari.
+                                            Plugin SMTP transport'u dogrudan olusturur ve DataSource kullanir;
+                                            bu dosyalara ihtiyac yoktur (eski surumdeki "kod gitmiyor" hatasinin kaynagi).
+                                        -->
+                                        <exclude>META-INF/javamail.*</exclude>
+                                        <exclude>META-INF/mailcap*</exclude>
+                                        <exclude>META-INF/mimetypes.default</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

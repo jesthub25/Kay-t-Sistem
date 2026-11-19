@@ -1,0 +1,9 @@
+{
+  "name": "kayitplugin-e2e",
+  "private": true,
+  "version": "1.0.0",
+  "description": "KayitPlugin uctan uca test (gercek Paper sunucusu + mineflayer botlari)",
+  "dependencies": {
+    "mineflayer": "^4.25.0"
+  }
+}

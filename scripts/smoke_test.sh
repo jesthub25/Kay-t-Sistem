@@ -37,5 +37,28 @@ motd=KayitPlugin CI
 server-port=25565
 PROPS
 
+# Eklenti ayarlari: e-posta testleri icin yerel sahte SMTP sunucusu
+mkdir -p "$SERVER/plugins/KayitPlugin"
+unzip -p "$JAR" config.yml > "$SERVER/plugins/KayitPlugin/config.yml"
+python3 - "$SERVER/plugins/KayitPlugin/config.yml" <<'PY'
+import re, sys
+p = sys.argv[1]
+s = open(p, encoding="utf-8").read()
+rep = {
+    "smtp-host": '"127.0.0.1"', "smtp-port": "2525", "security": "NONE",
+    "username": '"ci@kayit.test"', "password": '"ci-password"', "test-on-startup": "true",
+}
+for k, v in rep.items():
+    s = re.sub(r"(?m)^(  " + re.escape(k) + r":).*$", r"\1 " + v, s, count=1)
+open(p, "w", encoding="utf-8").write(s)
+PY
+grep -nE "smtp-host|smtp-port|security:|username|password:" "$SERVER/plugins/KayitPlugin/config.yml" | head -8
+
+MAILS="$SERVER/mails"
+python3 "$ROOT/scripts/mail_sink.py" 2525 "$MAILS" > "$SERVER/mail_sink.log" 2>&1 &
+SINK=$!
+trap 'kill $SINK 2>/dev/null || true' EXIT
+sleep 2
+
 cd "$ROOT/scripts"
-node e2e.js "$SERVER" "$MC"
+MAIL_DIR="$MAILS" node e2e.js "$SERVER" "$MC"

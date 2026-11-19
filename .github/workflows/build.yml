@@ -69,9 +69,11 @@ jobs:
         with:
           name: KayitPlugin
           path: dist
-      - name: Install test bot
+      - name: Install test tools
         working-directory: scripts
-        run: npm install --no-audit --no-fund
+        run: |
+          npm install --no-audit --no-fund
+          pip install --quiet aiosmtpd
       - name: Run end-to-end test
         run: bash scripts/smoke_test.sh "${{ matrix.mc }}" "$(ls dist/KayitPlugin-*.jar)"
       - name: Upload server log

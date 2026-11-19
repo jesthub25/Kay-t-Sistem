@@ -177,6 +177,94 @@ function setLanguage(code) {
   fs.writeFileSync(cfg, text, 'utf8');
 }
 
+
+// ------------------------------------------------------------------ e-posta (sahte SMTP)
+
+const MAIL_DIR = process.env.MAIL_DIR || '';
+
+function mailCount() {
+  if (!MAIL_DIR || !fs.existsSync(MAIL_DIR)) return 0;
+  return fs.readdirSync(MAIL_DIR).filter((f) => f.endsWith('.json')).length;
+}
+
+async function waitMail(to, fromIndex, ms) {
+  const deadline = Date.now() + (ms || 20000);
+  while (Date.now() < deadline) {
+    if (MAIL_DIR && fs.existsSync(MAIL_DIR)) {
+      const files = fs.readdirSync(MAIL_DIR).filter((f) => f.endsWith('.json')).sort();
+      for (let i = fromIndex; i < files.length; i++) {
+        const mail = JSON.parse(fs.readFileSync(path.join(MAIL_DIR, files[i]), 'utf8'));
+        if (mail.to.indexOf(to.toLowerCase()) >= 0) return mail;
+      }
+    }
+    await sleep(300);
+  }
+  throw new Error('No email received for ' + to);
+}
+
+function codeOf(mail) {
+  const m = /\b(\d{6})\b/.exec(mail.body.replace(/<[^>]+>/g, ' '));
+  if (!m) throw new Error('No code in email: ' + mail.subject);
+  return m[1];
+}
+
+async function mailScenario() {
+  // Yonetici test e-postasi
+  let mailMark = mailCount();
+  let mark = consoleCmd('kayitsistemi testmail admin@kayit.test');
+  await waitLog(/Test e-postası başarıyla gönderildi/, 30000, mark);
+  const test = await waitMail('admin@kayit.test', mailMark);
+  if (!/Test/.test(test.subject)) throw new Error('Unexpected test mail subject: ' + test.subject);
+  step('SMTP test email delivered');
+
+  // E-postali kayit + kod
+  let bot = await createBot('MailBot');
+  await bot.expect(/\/kayitol/, 15000);
+  mailMark = mailCount();
+  let m = bot.cmd('/kayitol mailpass1 mailbot@kayit.test');
+  await bot.expect(/Doğrulama kodu/, 20000, m);
+  let mail = await waitMail('mailbot@kayit.test', mailMark);
+  const regCode = codeOf(mail);
+  if (!/Kayıt Doğrulama Kodu/.test(mail.subject)) throw new Error('Wrong subject: ' + mail.subject);
+  step('Registration code email delivered (UTF-8 subject, HTML body)');
+  m = bot.cmd('/kod 000000');
+  await bot.expect(/Yanlış kod/, 10000, m);
+  m = bot.cmd('/kod gonder');
+  await bot.expect(/beklemelisin/, 10000, m);
+  step('Wrong code + resend cooldown');
+  m = bot.cmd('/kod ' + regCode);
+  await bot.expect(/Kayıt başarılı/, 15000, m);
+  step('Register with email code');
+  await quit(bot);
+
+  // E-posta kodlu giris
+  bot = await createBot('MailBot');
+  await bot.expect(/\/giris/, 15000);
+  mailMark = mailCount();
+  m = bot.cmd('/giris mailpass1');
+  await bot.expect(/Giriş kodu/, 15000, m);
+  mail = await waitMail('mailbot@kayit.test', mailMark);
+  m = bot.cmd('/kod ' + codeOf(mail));
+  await bot.expect(/Giriş başarılı/, 15000, m);
+  step('Login with email code (2FA)');
+
+  // E-posta degistirme
+  mailMark = mailCount();
+  m = bot.cmd('/eposta degistir mailbot@kayit.test yeni@kayit.test');
+  await bot.expect(/Doğrulama kodu/, 15000, m);
+  mail = await waitMail('yeni@kayit.test', mailMark);
+  m = bot.cmd('/kod ' + codeOf(mail));
+  await bot.expect(/değiştirildi/, 15000, m);
+  await waitMail('mailbot@kayit.test', mailMark);
+  step('Email change with code + notification to old address');
+
+  // Sifre degistirme
+  m = bot.cmd('/sifredegistir mailpass1 mailpass2');
+  await bot.expect(/Şifren başarıyla değiştirildi/, 15000, m);
+  step('Change password');
+  await quit(bot);
+}
+
 // ------------------------------------------------------------------ senaryo
 
 async function consoleScenario() {
@@ -203,6 +291,10 @@ async function scenario() {
   await waitLog(/Done \(/, 360000);
   await waitLog(/KayitPlugin v2\.\d+\.\d+ etkin/, 5000);
   step('Plugin enabled on server start');
+  if (MAIL_DIR) {
+    await waitLog(/SMTP bağlantı testi BAŞARILI/, 30000);
+    step('SMTP connection test on startup');
+  }
   await sleep(3000);
   if (!BOTS) {
     console.log('::notice title=MC ' + MC + '::mineflayer does not support ' + MC + ' - running console scenario');
@@ -258,6 +350,10 @@ async function scenario() {
   await bot.expect(/Bekleyen bir doğrulama/, 10000, m);
   step('Code command without pending action');
   await quit(bot);
+
+  if (MAIL_DIR) {
+    await mailScenario();
+  }
 
   // 4) Ban -> alt hesap uyarisi
   mark = consoleCmd('ban AltBot hile testi');

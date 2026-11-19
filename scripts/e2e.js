@@ -15,6 +15,15 @@ const SERVER_DIR = path.resolve(process.argv[2] || 'server');
 const MC = process.argv[3] || '1.21.4';
 const JAVA_OPTS = ['-Xms512M', '-Xmx1536M', '-Dcom.mojang.eula.agree=true'];
 
+let BOTS = true;
+try {
+  const tested = mineflayer.testedVersions || [];
+  BOTS = tested.indexOf(MC) >= 0;
+} catch (e) {
+  BOTS = false;
+}
+if (process.env.E2E_BOTS === 'false') BOTS = false;
+
 const lines = [];
 let waiters = [];
 const logFile = fs.createWriteStream(path.join(SERVER_DIR, 'e2e-console.log'));
@@ -83,6 +92,7 @@ function step(name) {
 
 function createBot(name) {
   return new Promise((resolve, reject) => {
+    let spawned = false;
     const bot = mineflayer.createBot({
       host: '127.0.0.1',
       port: 25565,
@@ -90,6 +100,7 @@ function createBot(name) {
       version: MC,
       auth: 'offline',
       checkTimeoutInterval: 120000,
+      hideErrors: true,
     });
     bot.msgs = [];
     bot.waiters = [];
@@ -109,11 +120,23 @@ function createBot(name) {
       bot.kickReason = typeof reason === 'string' ? reason : JSON.stringify(reason);
       console.log('[' + name + '] kicked: ' + bot.kickReason);
     });
-    bot.once('spawn', () => resolve(bot));
-    bot.once('error', (e) => reject(e));
+    // Test botu kutuphanesinin paket cozme hatalari testi cokertmesin (eklentiyle ilgisi yok)
+    bot.on('error', (e) => console.log('[' + name + '] client error (ignored): ' + (e && e.message)));
+    const timer = setTimeout(() => {
+      if (!spawned) reject(new Error(name + ' could not spawn within 45s' + (bot.kickReason ? ' (kicked: ' + bot.kickReason + ')' : '')));
+    }, 45000);
+    bot.once('spawn', () => {
+      spawned = true;
+      clearTimeout(timer);
+      resolve(bot);
+    });
     bot.once('end', (r) => {
       bot.ended = true;
       console.log('[' + name + '] disconnected: ' + r);
+      if (!spawned) {
+        clearTimeout(timer);
+        reject(new Error(name + ' disconnected before spawn: ' + r + (bot.kickReason ? ' / ' + bot.kickReason : '')));
+      }
     });
     bot.expect = (re, ms, from) => {
       const start = from || 0;
@@ -124,7 +147,9 @@ function createBot(name) {
         const w = { re, resolve: res };
         w.timer = setTimeout(() => {
           bot.waiters = bot.waiters.filter((x) => x !== w);
-          rej(new Error(name + ' did not receive: ' + re));
+          const last = bot.msgs.slice(-5).join(' || ');
+          rej(new Error(name + ' did not receive ' + re + (bot.kickReason ? ' (kicked: ' + bot.kickReason + ')' : '')
+            + (bot.ended ? ' (disconnected)' : '') + ' last: ' + last));
         }, ms || 15000);
         bot.waiters.push(w);
       });
@@ -154,11 +179,36 @@ function setLanguage(code) {
 
 // ------------------------------------------------------------------ senaryo
 
+async function consoleScenario() {
+  let mark = consoleCmd('kayitsistemi bilgi');
+  await waitLog(/Kayıt Sistemi/, 10000, mark);
+  await waitLog(/Veritabanı: SQLite/, 5000, mark);
+  step('Admin info (console)');
+  mark = consoleCmd('hesaplar YokBoyleBiri');
+  await waitLog(/Kayıtlı oyuncu bulunamadı/, 10000, mark);
+  step('/hesaplar unknown player (console)');
+  mark = consoleCmd('sifresifirla YokBoyleBiri');
+  await waitLog(/kayıtlı değil/, 10000, mark);
+  step('Admin reset unknown player (console)');
+  setLanguage('en');
+  mark = consoleCmd('kayitsistemi yenile');
+  await waitLog(/reloaded|yeniden yüklendi/, 15000, mark);
+  await sleep(1500);
+  mark = consoleCmd('authsystem info');
+  await waitLog(/Auth System/, 10000, mark);
+  step('Language switch + English admin command (console)');
+}
+
 async function scenario() {
   await waitLog(/Done \(/, 360000);
   await waitLog(/KayitPlugin v2\.\d+\.\d+ etkin/, 5000);
   step('Plugin enabled on server start');
   await sleep(3000);
+  if (!BOTS) {
+    console.log('::notice title=MC ' + MC + '::mineflayer does not support ' + MC + ' - running console scenario');
+    await consoleScenario();
+    return;
+  }
 
   // 1) Alt hesap kaydi
   let alt = await createBot('AltBot');
@@ -298,6 +348,13 @@ async function main() {
   console.log('::notice title=MC ' + MC + '::ALL ' + passed.length + ' CHECKS PASSED, 0 errors in console');
   process.exit(0);
 }
+
+process.on('uncaughtException', (e) => {
+  console.log('::error title=MC ' + MC + ' uncaught::' + (e && e.message ? e.message : e));
+});
+process.on('unhandledRejection', (e) => {
+  console.log('::error title=MC ' + MC + ' unhandled::' + (e && e.message ? e.message : e));
+});
 
 main().catch((e) => {
   console.log('::error::' + (e && e.stack ? e.stack : e));

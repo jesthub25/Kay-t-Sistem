@@ -13,9 +13,11 @@ Geliştirici: **Jestron** · *English below.*
 | Veritabanı | SQLite (varsayılan), MySQL, MariaDB |
 | Dil | Türkçe, English (komutlar dahil) |
 
-Her sürüm GitHub Actions üzerinde **gerçek Paper sunucularında (1.16.5 … 1.21.x)** botlarla uçtan uca test edilir:
-kayıt, giriş, yanlış şifre, şifre limitleri, sohbet/komut engeli, ban → alt hesap uyarısı, unban, `/hesaplar`, dil değişimi.
-Konsolda tek bir hata çıkarsa sürüm yayınlanmaz.
+Her sürüm GitHub Actions üzerinde **gerçek Paper sunucularında** botlarla uçtan uca test edilir
+(1.16.5 · 1.17.1 · 1.18.2 · 1.19.4 · 1.20.4 · 1.20.6 · 1.21.1 · 1.21.4 · 1.21.8 · 1.21.11, ayrıca AdvancedBan ve EssentialsX ile):
+kayıt, giriş, yanlış şifre, şifre limitleri, sohbet/komut engeli, **gerçek SMTP ile e-posta kodu** (kayıt, 2 adımlı giriş,
+e-posta değiştirme, test e-postası), şifre değiştirme, ban → banlı alt hesap uyarısı, unban, `/hesaplar`, yönetici komutları,
+dil değişimi (TR → EN, komut adları dahil). Konsolda eklentiye ait tek bir hata çıkarsa sürüm yayınlanmaz.
 
 ---
 

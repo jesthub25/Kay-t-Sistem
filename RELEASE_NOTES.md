@@ -1,8 +1,9 @@
 ## KayitPlugin v2.0.0
 
 Tamamen yeniden yazılmış sürüm. **Tek JAR: Spigot / Paper / Purpur / Leaf 1.16.x – 1.21.x, Java 8 – 21.**
-Bu sürüm GitHub Actions'ta gerçek Paper sunucularında (1.16.5, 1.17.1, 1.18.2, 1.19.4, 1.20.4, 1.20.6, 1.21.1, 1.21.4)
-botlarla uçtan uca test edildi; konsolda sıfır hata.
+Bu sürüm GitHub Actions'ta gerçek Paper sunucularında **1.16.5, 1.17.1, 1.18.2, 1.19.4, 1.20.4, 1.20.6, 1.21.1, 1.21.4,
+1.21.8, 1.21.11** (+ AdvancedBan ve EssentialsX ile) botlarla uçtan uca test edildi: her sürümde 27 senaryo
+(gerçek SMTP ile e-posta kodları dahil) geçti, konsolda eklentiye ait **sıfır hata**.
 
 ### Düzeltilen hatalar
 - **E-postaya kod gitmiyordu** → kökten çözüldü. Relocate edilen JavaMail'in sağlayıcı/mailcap dosyaları eski sınıf adlarını gösteriyordu; SMTP artık doğrudan bağlanıyor, içerik DataSource ile gönderiliyor. `/kod gonder` de çalışıyor.

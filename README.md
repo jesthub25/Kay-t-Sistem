@@ -190,7 +190,10 @@ mvn package
 # target/KayitPlugin-<sürüm>.jar
 ```
 JDK 17+ ile derlenir, **Java 8 bytecode** üretir (1.16 sunucularında da çalışması için).
-Uçtan uca test: `bash scripts/smoke_test.sh 1.21.4 target/KayitPlugin-*.jar` (Node.js 18+ gerekir).
+Uçtan uca test: `bash scripts/smoke_test.sh 1.21.4 target/KayitPlugin-*.jar` (Node.js 22+ ve `pip install aiosmtpd` gerekir).
+
+**Yeni sürüm yayınlama:** `pom.xml` içindeki `<version>` değerini artırıp `RELEASE_NOTES.md`'yi güncelleyin ve `main`'e push edin.
+GitHub Actions derler, tüm sürümlerde test eder ve testler geçerse `v<sürüm>` release'ini JAR ile birlikte otomatik yayınlar.
 
 ---
 

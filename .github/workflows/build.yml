@@ -134,7 +134,7 @@ jobs:
   release:
     name: GitHub Release
     needs: [build, e2e, e2e-banplugins]
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -142,13 +142,21 @@ jobs:
         with:
           name: KayitPlugin
           path: dist
-      - name: Create release
+      - name: Publish release (version from pom.xml)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="${GITHUB_REF_NAME}"
+          VERSION=$(grep -m1 -oP '(?<=<version>)[^<]+' pom.xml)
+          TAG="v${VERSION}"
+          echo "Version: $VERSION"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" dist/KayitPlugin-*.jar --clobber
+            if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+              gh release upload "$TAG" dist/KayitPlugin-*.jar --clobber
+            else
+              echo "::notice::Release $TAG already exists - bump the version in pom.xml to publish a new one."
+            fi
           else
-            gh release create "$TAG" dist/KayitPlugin-*.jar --title "KayitPlugin $TAG" --notes-file RELEASE_NOTES.md --latest
+            gh release create "$TAG" dist/KayitPlugin-*.jar --target "$GITHUB_SHA" \
+              --title "KayitPlugin $TAG" --notes-file RELEASE_NOTES.md --latest
+            echo "::notice::Published $TAG"
           fi

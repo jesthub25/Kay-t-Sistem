@@ -85,7 +85,7 @@ function consoleCmd(cmd) {
 
 function step(name) {
   passed.push(name);
-  console.log('::notice title=MC ' + MC + '::OK - ' + name);
+  console.log('[e2e] OK - ' + name);
 }
 
 // ------------------------------------------------------------------ bot
@@ -345,7 +345,8 @@ async function main() {
   if (failure || bad.length) {
     process.exit(1);
   }
-  console.log('::notice title=MC ' + MC + '::ALL ' + passed.length + ' CHECKS PASSED, 0 errors in console');
+  console.log('::notice title=MC ' + MC + '::ALL ' + passed.length + ' CHECKS PASSED, 0 plugin errors in console: '
+    + passed.join(' | '));
   process.exit(0);
 }
 
